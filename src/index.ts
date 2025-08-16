@@ -1,6 +1,8 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { registerEVMTools } from "./core/tools.js";
+import { registerTokenTools } from "./core/token-tools.js";
+import { registerContractTools } from "./core/contract-tools.js";
 
 async function main() {
   try {
@@ -16,6 +18,12 @@ async function main() {
 
     // Register EVM tools
     registerEVMTools(server);
+
+    // Register Token tools
+    registerTokenTools(server);
+
+    // Register Contract tools
+    registerContractTools(server);
 
 
     // Create transport and connect

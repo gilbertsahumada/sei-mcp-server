@@ -4,6 +4,7 @@ export type { TokenInfo, TokenList } from "./BaseTokenFetcher.js";
 
 // Protocol-specific Token Fetchers
 export { DragonSwapTokens } from "./DragonSwapTokens.js";
+export { SailorTokens } from "./SailorTokens.js";
 export { OkuTradeTokens } from "./OkuTradeTokens.js";
 export { YakaFinanceTokens } from "./YakaFinanceTokens.js";
 

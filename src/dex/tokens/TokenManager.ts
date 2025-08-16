@@ -1,10 +1,11 @@
 import { type Address } from "viem";
 import { DragonSwapTokens } from "./DragonSwapTokens.js";
+import { SailorTokens } from "./SailorTokens.js";
 import { OkuTradeTokens } from "./OkuTradeTokens.js";
 import { YakaFinanceTokens } from "./YakaFinanceTokens.js";
 import { type TokenInfo, type TokenList } from "./BaseTokenFetcher.js";
 
-export type ProtocolName = "DragonSwap" | "OkuTrade" | "YakaFinance";
+export type ProtocolName = "DragonSwap" | "Sailor" | "OkuTrade" | "YakaFinance";
 
 export interface UnifiedTokenInfo extends TokenInfo {
   sources: ProtocolName[]; // Which protocols have this token
@@ -53,13 +54,14 @@ export interface CrossProtocolStats {
  * - Cross-protocol analytics
  */
 export class TokenManager {
-  private fetchers: Map<ProtocolName, DragonSwapTokens | OkuTradeTokens | YakaFinanceTokens>;
+  private fetchers: Map<ProtocolName, DragonSwapTokens | SailorTokens | OkuTradeTokens | YakaFinanceTokens>;
   private chainId: number;
 
   constructor(chainId: number = 1329) {
     this.chainId = chainId;
     this.fetchers = new Map();
     this.fetchers.set("DragonSwap", new DragonSwapTokens(chainId));
+    this.fetchers.set("Sailor", new SailorTokens(chainId));
     this.fetchers.set("OkuTrade", new OkuTradeTokens(chainId));
     this.fetchers.set("YakaFinance", new YakaFinanceTokens(chainId));
   }

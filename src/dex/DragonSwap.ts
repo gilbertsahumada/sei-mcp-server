@@ -3,6 +3,7 @@ import { BaseDex, type SwapParams, type SwapQuote, type LiquidityPool } from "./
 import { getPublicClient, getWalletClient } from "../core/services/clients.js";
 import { getPrivateKeyAsHex } from "../core/config.js";
 import { getChain } from "../core/chains.js";
+import { ContractAddresses } from "./contracts/ContractAddresses.js";
 
 /**
  * DragonSwap DEX implementation for Sei Network
@@ -11,17 +12,21 @@ import { getChain } from "../core/chains.js";
  * Known for: Fast execution, low slippage, wide token selection
  */
 export class DragonSwap extends BaseDex {
-  private static readonly ROUTER_ADDRESS: Address = "0x0000000000000000000000000000000000000000"; // TODO: Add real address
-  private static readonly FACTORY_ADDRESS: Address = "0x0000000000000000000000000000000000000000"; // TODO: Add real address
   private static readonly DEFAULT_FEE = 0.3; // 0.3% fee
+  private contractAddresses: ContractAddresses;
 
   constructor(network: string = "sei") {
+    const chainId = network === "sei" ? 1329 : network === "sei-testnet" ? 1328 : 1329;
+    const contracts = new ContractAddresses(chainId);
+    
     super(
       "DragonSwap",
-      DragonSwap.ROUTER_ADDRESS,
-      DragonSwap.FACTORY_ADDRESS,
+      contracts.getRouterAddress("DragonSwap"),
+      contracts.getFactoryAddress("DragonSwap"),
       network
     );
+    
+    this.contractAddresses = contracts;
   }
 
   /**
@@ -183,5 +188,42 @@ export class DragonSwap extends BaseDex {
       console.error(`Error fetching volume: ${error}`);
       return "0";
     }
+  }
+
+  /**
+   * Get contract addresses used by this DEX
+   */
+  getContractAddresses() {
+    return {
+      router: this.routerAddress,
+      factory: this.factoryAddress,
+      quoter: this.contractAddresses.getQuoterAddress("DragonSwap"),
+      positionManager: this.contractAddresses.getPositionManagerAddress("DragonSwap"),
+      multicall: this.contractAddresses.getMulticallAddress("DragonSwap"),
+      network: this.network,
+      chainId: this.contractAddresses.getChainId()
+    };
+  }
+
+  /**
+   * Get common token addresses for this network
+   */
+  getCommonTokens() {
+    return {
+      WSEI: this.contractAddresses.getWSEIAddress(),
+      USDC: this.contractAddresses.getUSDCAddress(),
+      DRG: this.contractAddresses.getDRGAddress(),
+      YAKA: this.contractAddresses.getYAKAAddress()
+    };
+  }
+
+  /**
+   * Check if this is using placeholder addresses
+   */
+  isUsingPlaceholderAddresses(): boolean {
+    return (
+      this.contractAddresses.isPlaceholderAddress(this.routerAddress) ||
+      this.contractAddresses.isPlaceholderAddress(this.factoryAddress)
+    );
   }
 }

@@ -1,10 +1,11 @@
 import { type Address, type Hex } from "viem";
 import { DragonSwap } from "./DragonSwap.js";
 import { SailorDex } from "./SailorDex.js";
+import { YakaDex } from "./YakaDex.js";
 import { OkuDex } from "./OkuDex.js";
 import { type SwapParams, type SwapQuote } from "./base/BaseDex.js";
 
-export type DexName = "DragonSwap" | "Sailor" | "Oku";
+export type DexName = "DragonSwap" | "Sailor" | "Yaka" | "Oku";
 
 export interface DexComparison {
   dexName: DexName;
@@ -33,7 +34,7 @@ export interface ArbitrageOpportunity {
  * - Cross-DEX analytics
  */
 export class DexManager {
-  private dexes: Map<DexName, DragonSwap | SailorDex | OkuDex>;
+  private dexes: Map<DexName, DragonSwap | SailorDex | YakaDex | OkuDex>;
   private network: string;
 
   constructor(network: string = "sei") {
@@ -41,6 +42,7 @@ export class DexManager {
     this.dexes = new Map();
     this.dexes.set("DragonSwap", new DragonSwap(network));
     this.dexes.set("Sailor", new SailorDex(network));
+    this.dexes.set("Yaka", new YakaDex(network));
     this.dexes.set("Oku", new OkuDex(network));
   }
 
@@ -51,6 +53,7 @@ export class DexManager {
     const quotes = await Promise.allSettled([
       this.getDexQuote("DragonSwap", params),
       this.getDexQuote("Sailor", params),
+      this.getDexQuote("Yaka", params),
       this.getDexQuote("Oku", params)
     ]);
 
@@ -239,6 +242,7 @@ export class DexManager {
     const quotesAtoB = await Promise.allSettled([
       this.getDexQuote("DragonSwap", { tokenIn: tokenA, tokenOut: tokenB, amountIn: testAmount, slippage: 0.5 }),
       this.getDexQuote("Sailor", { tokenIn: tokenA, tokenOut: tokenB, amountIn: testAmount, slippage: 0.5 }),
+      this.getDexQuote("Yaka", { tokenIn: tokenA, tokenOut: tokenB, amountIn: testAmount, slippage: 0.5 }),
       this.getDexQuote("Oku", { tokenIn: tokenA, tokenOut: tokenB, amountIn: testAmount, slippage: 0.5 })
     ]);
 
@@ -246,6 +250,7 @@ export class DexManager {
     const quotesBtoA = await Promise.allSettled([
       this.getDexQuote("DragonSwap", { tokenIn: tokenB, tokenOut: tokenA, amountIn: testAmount, slippage: 0.5 }),
       this.getDexQuote("Sailor", { tokenIn: tokenB, tokenOut: tokenA, amountIn: testAmount, slippage: 0.5 }),
+      this.getDexQuote("Yaka", { tokenIn: tokenB, tokenOut: tokenA, amountIn: testAmount, slippage: 0.5 }),
       this.getDexQuote("Oku", { tokenIn: tokenB, tokenOut: tokenA, amountIn: testAmount, slippage: 0.5 })
     ]);
 
@@ -295,7 +300,7 @@ export class DexManager {
   /**
    * Get a specific DEX instance
    */
-  getDex(dexName: DexName): DragonSwap | SailorDex | OkuDex | undefined {
+  getDex(dexName: DexName): DragonSwap | SailorDex | YakaDex | OkuDex | undefined {
     return this.dexes.get(dexName);
   }
 

@@ -3,6 +3,7 @@ import { BaseDex, type SwapParams, type SwapQuote, type LiquidityPool } from "./
 import { getPublicClient, getWalletClient } from "../core/services/clients.js";
 import { getPrivateKeyAsHex } from "../core/config.js";
 import { getChain } from "../core/chains.js";
+import { ContractAddresses } from "./contracts/ContractAddresses.js";
 
 /**
  * Sailor DEX implementation for Sei Network
@@ -11,17 +12,21 @@ import { getChain } from "../core/chains.js";
  * Known for: Advanced routing, yield farming, governance features
  */
 export class SailorDex extends BaseDex {
-  private static readonly ROUTER_ADDRESS: Address = "0x0000000000000000000000000000000000000000"; // TODO: Add real address
-  private static readonly FACTORY_ADDRESS: Address = "0x0000000000000000000000000000000000000000"; // TODO: Add real address
   private static readonly DEFAULT_FEE = 0.25; // 0.25% fee
+  private contractAddresses: ContractAddresses;
 
   constructor(network: string = "sei") {
+    const chainId = network === "sei" ? 1329 : network === "sei-testnet" ? 1328 : 1329;
+    const contracts = new ContractAddresses(chainId);
+    
     super(
       "Sailor",
-      SailorDex.ROUTER_ADDRESS,
-      SailorDex.FACTORY_ADDRESS,
+      contracts.getRouterAddress("Sailor"),
+      contracts.getFactoryAddress("Sailor"),
       network
     );
+    
+    this.contractAddresses = contracts;
   }
 
   /**
@@ -212,5 +217,30 @@ export class SailorDex extends BaseDex {
       console.error(`Error fetching governance proposals: ${error}`);
       return [];
     }
+  }
+
+  /**
+   * Get contract addresses used by this DEX
+   */
+  getContractAddresses() {
+    return {
+      router: this.routerAddress,
+      factory: this.factoryAddress,
+      quoter: this.contractAddresses.getQuoterAddress("Sailor"),
+      positionManager: this.contractAddresses.getPositionManagerAddress("Sailor"),
+      multicall: this.contractAddresses.getMulticallAddress("Sailor"),
+      network: this.network,
+      chainId: this.contractAddresses.getChainId()
+    };
+  }
+
+  /**
+   * Check if this is using placeholder addresses
+   */
+  isUsingPlaceholderAddresses(): boolean {
+    return (
+      this.contractAddresses.isPlaceholderAddress(this.routerAddress) ||
+      this.contractAddresses.isPlaceholderAddress(this.factoryAddress)
+    );
   }
 }
