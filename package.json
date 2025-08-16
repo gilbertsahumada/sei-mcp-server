@@ -14,6 +14,9 @@
         "lint": "echo \"No linting configured\""
     },
     "dependencies": {
+        "@goat-sdk/adapter-model-context-protocol": "^0.2.11",
+        "@goat-sdk/wallet-viem": "^0.2.12",
+        "@goat-sdk/wallet-evm": "0.2.11",
         "@modelcontextprotocol/sdk": "^1.17.2",
         "axios": "^1.10.0",
         "body-parser": "^2.2.0",
@@ -46,5 +49,6 @@
         "tailwindcss": "^4.0.0",
         "tsx": "^4.20.3",
         "typescript": "^5.8.3"
-    }
+    },
+    "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
 }

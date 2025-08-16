@@ -17,6 +17,7 @@ async function main() {
     // Register EVM tools
     registerEVMTools(server);
 
+
     // Create transport and connect
     const transport = new StdioServerTransport();
     await server.connect(transport);
